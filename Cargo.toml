@@ -1,0 +1,8 @@
+[package]
+name = "rusty_6502_assembler"
+version = "0.1.0"
+authors = ["PeronTheDuck <pedroignacioperezvargas@gmail.com>"]
+build = "src/build.rs"
+
+[dependencies]
+regex = "1.0.5"
