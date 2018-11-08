@@ -23,48 +23,6 @@ mod data_types {
     }
 
 }
-mod opcode_manager {
-    //#region Datatypes
-    pub enum Addressing_modes {
-        Immediate, /* # */
-        Implicit,  /* impl */
-    }
-    pub struct Opcode<'a> {
-        pub name: &'a str,
-        pub addr_mode: Addressing_modes,
-        pub value: u8,
-    }
-    //#endregion
-    macro_rules! create_opcode {
-        ($name:expr,"#",$val:expr) => {
-            Opcode {
-                name: $name,
-                addr_mode: Addressing_modes::Immediate,
-                value: $val,
-            }
-        };
-        ($name:expr,"impl",$val:expr) => {
-            Opcode {
-                name: $name,
-                addr_mode: Addressing_modes::Implicit,
-                value: $val,
-            }
-        };
-        ($name:expr,$addr_mode:expr,$val:expr) => {
-            Opcode {
-                name: $name,
-                addr_mode: $addr_mode,
-                value: $val,
-            }
-        };
-    }
-    //#region Opcode static list
-    static opcode_list: [Opcode; 2] = [
-        create_opcode!("LDA", "#", 0xA9),
-        create_opcode!("LDX", "#", 0xA2),
-    ];
-    //#endregion
-}
 
 fn main() {
     let mut items: Vec<String> = vec![];
