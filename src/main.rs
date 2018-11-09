@@ -4,9 +4,12 @@ use std::io::{BufRead, BufReader};
 
 extern crate regex;
 
+mod opcode_manager;
 mod assembler {
     pub mod types {}
-    pub fn assemble_line(line: &String) {}
+    pub fn assemble_line(line: &String) {
+        
+    }
 }
 mod data_types {
     struct Bytes {
@@ -38,5 +41,6 @@ fn main() {
 
     for item in items {
         assembler::assemble_line(&item);
+        
     }
 }

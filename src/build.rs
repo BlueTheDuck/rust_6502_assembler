@@ -1,23 +1,18 @@
 use std::{
-    env,
-    error::Error,
-    fs::{File, OpenOptions},
-    io::{BufRead, BufReader, BufWriter, Seek, SeekFrom, Write},
-    path::Path,
+    error::Error
 };
 
 fn main() -> Result<(), Box<Error>> {
-    let out_dir = env::var("OUT_DIR")?;
-    let mut opcode_code_generator: String = get_code();
+    let opcode_code_generator: String = get_code();
 
-    let mut opmanager_code = include_str!("opcode_manager.rs");
-    let mut opmanager_code_lines: Vec<&str> = opmanager_code.lines().collect();
+    let opmanager_code = include_str!("opcode_manager.rs");
+    let opmanager_code_lines: Vec<&str> = opmanager_code.lines().collect();
     let mut opmanager_code_final: String = "".to_string();
 
     println!("Finding");
 
     let mut i = 0;
-    let mut line: &str = opmanager_code_lines[i];
+    let mut line: &str;
     let mut state = 0; //SEARCH SKIP END
     while i < opmanager_code_lines.len() {
         line = opmanager_code_lines[i];
@@ -45,13 +40,13 @@ fn main() -> Result<(), Box<Error>> {
         i += 1;
     }
 
-    std::fs::write("src/opcode_manager.rs", opmanager_code_final);
+    std::fs::write("src/opcode_manager.rs", opmanager_code_final).expect("Error saving opcode_manager.rs");
 
     Ok(())
 }
 
 fn get_code() -> String {
-    let mut opcode_csv = include_str!("../data/opcodestable.csv").split_whitespace();
+    let opcode_csv = include_str!("../data/opcodestable.csv").split_whitespace();
     let mut opcode_code_generator: String = String::from("");
     let mut opcodes_counter = 0;
 
@@ -63,7 +58,7 @@ fn get_code() -> String {
 
         let items: Vec<&str> = line.split(",").collect();
         let code_line = format!(
-            "        create_opcode!(\"{}\", \"{}\", 0x{});\n",
+            "        create_opcode!(\"{}\", \"{}\", 0x{}),\n",
             items[0], items[1], items[2]
         );
         opcode_code_generator += &code_line.clone();
@@ -71,7 +66,7 @@ fn get_code() -> String {
 
     opcode_code_generator = format!(
         "    static opcode_list: [Opcode; {}] = [\n{}    ];",
-        opcodes_counter, opcode_code_generator
+        opcodes_counter-1, opcode_code_generator
     );
 
     opcode_code_generator
