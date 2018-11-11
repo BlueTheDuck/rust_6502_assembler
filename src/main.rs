@@ -10,11 +10,21 @@ mod assembler {
     pub mod types {}
     pub fn assemble_line(line: &String) {
         let mut op_iter = line.split(" ");
-        let name = op_iter.next();
+        let name = op_iter.next().unwrap();
         let operand = op_iter.next();
+        let mut opcode:Option<&rusty_6502_assembler::manager::Opcode> = None;
 
         if let Some(operand) = operand {
-            println!("{:?}", rusty_6502_assembler::manager::identify_operand(operand));
+            let op_mode = rusty_6502_assembler::manager::identify_operand(operand);
+            opcode = rusty_6502_assembler::manager::get_hex(name, op_mode);
+            println!("{} has {:?}", name,&op_mode);
+        } else {
+            println!("No operand provided");
+        }
+        if let Some(opcode) = opcode {
+            println!("{:?}", opcode);
+        } else {
+            println!("Error");
         }
     }
 }
@@ -42,7 +52,6 @@ fn main() {
             let line = line.unwrap();
             items.push(line);
         }
-        items.reverse();
     }
     println!("{:#?}", items);
 

@@ -1,24 +1,56 @@
 extern crate regex;
 
+#[macro_use]
+extern crate lazy_static;
+
+use regex::Regex;
+
 pub mod manager {
+    mod operand_regexs {
+        lazy_static! {
+            pub static ref immediate: regex::Regex =
+                regex::Regex::new(r"\#\$[0-9A-F]{2}").expect("Failed parsing regex");
+            pub static ref absolute: regex::Regex =
+                regex::Regex::new(r"\$[0-9A-F]{4}").expect("Failed parsing regex");
+            pub static ref zero_page: regex::Regex =
+                regex::Regex::new(r"\$[0-9A-F]{2}").expect("Failed parsing regex");
+            
+        }
+    }
+
     //#region Datatypes
-    #[derive(PartialEq,Debug)]
+    #[derive(PartialEq, Debug,Clone,Copy)]
     pub enum AddressingModes {
         Immediate, /* # */
         Implicit,  /* impl */
+        Absolute,
+        ZeroPage,
         None,
     }
+    #[derive(Debug)]
     pub struct Opcode<'a> {
         pub name: &'a str,
         pub addr_mode: AddressingModes,
         pub value: u8,
     }
-    //#endregion  
+    //#endregion
     //#region Macros
     macro_rules! mode_name_to_enum {
-        ("#")=> {AddressingModes::Immediate};
-        ("impl")=>{AddressingModes::Implicit};
-        ($_:expr)=>{AddressingModes::None};
+        ("#") => {
+            AddressingModes::Immediate
+        };
+        ("impl") => {
+            AddressingModes::Implicit
+        };
+        ("abs") => {
+            AddressingModes::Absolute
+        };
+        ("zpg") => {
+            AddressingModes::ZeroPage
+        };
+        ($_:expr) => {
+            AddressingModes::None
+        };
     }
     macro_rules! create_opcode {
         ($name:expr,$addr_mode:expr,$val:expr) => {
@@ -87,22 +119,29 @@ pub mod manager {
         create_opcode!("TYA", "impl", 0x98),
     ];
     //#endregion
-    pub fn identify_operand(operand:&str)->AddressingModes {
-        let immediate = regex::Regex::new(r"#$[0-9A-F]{2}").expect("Failed parsing regex");
-        
-        if immediate.is_match(operand) {
+
+    pub fn identify_operand(operand: &str) -> AddressingModes {
+        if operand_regexs::immediate.is_match(operand) {
             return AddressingModes::Immediate;
         }
+        if operand_regexs::absolute.is_match(operand) {
+            return AddressingModes::Absolute;
+        }
+        if operand_regexs::zero_page.is_match(operand) {
+            return AddressingModes::ZeroPage;
+        }
+        
+
         AddressingModes::None
     }
-    pub fn get_hex(opcode:&str,operand_mode:AddressingModes)->Option<&Opcode> {
-        let mut i=0;
-        while i<OPCODE_LIST.len() {
+    pub fn get_hex(opcode: &str, operand_mode: AddressingModes) -> Option<&Opcode> {
+        let mut i = 0;
+        while i < OPCODE_LIST.len() {
             let ACTUAL_OP = &OPCODE_LIST[i];
-            if ACTUAL_OP.name==opcode && ACTUAL_OP.addr_mode==operand_mode {
-                return Some(&ACTUAL_OP);
+            if ACTUAL_OP.name == opcode && ACTUAL_OP.addr_mode == operand_mode {
+                return Some(&OPCODE_LIST[i]);
             }
-            i+=1;
+            i += 1;
         }
         None
     }
