@@ -1,23 +1,24 @@
 extern crate regex;
 
-pub mod opcode_manager {
+pub mod manager {
     //#region Datatypes
-    pub enum Addressing_modes {
+    #[derive(PartialEq,Debug)]
+    pub enum AddressingModes {
         Immediate, /* # */
         Implicit,  /* impl */
         None,
     }
     pub struct Opcode<'a> {
         pub name: &'a str,
-        pub addr_mode: Addressing_modes,
+        pub addr_mode: AddressingModes,
         pub value: u8,
     }
     //#endregion  
     //#region Macros
     macro_rules! mode_name_to_enum {
-        ("#")=> {Addressing_modes::Immediate};
-        ("impl")=>{Addressing_modes::Implicit};
-        ($_:expr)=>{Addressing_modes::None};
+        ("#")=> {AddressingModes::Immediate};
+        ("impl")=>{AddressingModes::Implicit};
+        ($_:expr)=>{AddressingModes::None};
     }
     macro_rules! create_opcode {
         ($name:expr,$addr_mode:expr,$val:expr) => {
@@ -30,7 +31,7 @@ pub mod opcode_manager {
     }
     //#endregion
     //#region Opcode-static-list
-    static opcode_list: [Opcode; 53] = [
+    static OPCODE_LIST: [Opcode; 53] = [
         create_opcode!("ADC", "#", 0x69),
         create_opcode!("ADC", "abs", 0x6D),
         create_opcode!("ADC", "zpg", 0x65),
@@ -86,12 +87,23 @@ pub mod opcode_manager {
         create_opcode!("TYA", "impl", 0x98),
     ];
     //#endregion
-    pub fn identify_operand(operand:&str)->Addressing_modes {
-        let Immediate = regex::Regex::new(r"[0-9A-F]{2}").expect("Failed parsing regex");
+    pub fn identify_operand(operand:&str)->AddressingModes {
+        let immediate = regex::Regex::new(r"#$[0-9A-F]{2}").expect("Failed parsing regex");
         
-        if Immediate.is_match(operand) {
-            return Addressing_modes::Immediate;
+        if immediate.is_match(operand) {
+            return AddressingModes::Immediate;
         }
-        Addressing_modes::None
+        AddressingModes::None
+    }
+    pub fn get_hex(opcode:&str,operand_mode:AddressingModes)->Option<&Opcode> {
+        let mut i=0;
+        while i<OPCODE_LIST.len() {
+            let ACTUAL_OP = &OPCODE_LIST[i];
+            if ACTUAL_OP.name==opcode && ACTUAL_OP.addr_mode==operand_mode {
+                return Some(&ACTUAL_OP);
+            }
+            i+=1;
+        }
+        None
     }
 }

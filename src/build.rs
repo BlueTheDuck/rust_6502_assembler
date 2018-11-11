@@ -5,7 +5,7 @@ use std::{
 fn main() -> Result<(), Box<Error>> {
     let opcode_code_generator: String = get_code();
 
-    let opmanager_code = include_str!("opcode_manager.rs");
+    let opmanager_code = include_str!("lib.rs");
     let opmanager_code_lines: Vec<&str> = opmanager_code.lines().collect();
     let mut opmanager_code_final: String = "".to_string();
 
@@ -40,7 +40,7 @@ fn main() -> Result<(), Box<Error>> {
         i += 1;
     }
 
-    std::fs::write("src/opcode_manager.rs", opmanager_code_final).expect("Error saving opcode_manager.rs");
+    std::fs::write("src/lib.rs", opmanager_code_final).expect("Error saving opcode_manager.rs");
 
     Ok(())
 }
@@ -65,7 +65,7 @@ fn get_code() -> String {
     }
 
     opcode_code_generator = format!(
-        "    static opcode_list: [Opcode; {}] = [\n{}    ];",
+        "    static OPCODE_LIST: [Opcode; {}] = [\n{}    ];",
         opcodes_counter-1, opcode_code_generator
     );
 

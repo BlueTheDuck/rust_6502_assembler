@@ -1,14 +1,21 @@
 use regex::Regex;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+extern crate rusty_6502_assembler;
+use rusty_6502_assembler::manager;
 
 extern crate regex;
 
-mod opcode_manager;
 mod assembler {
     pub mod types {}
     pub fn assemble_line(line: &String) {
-        
+        let mut op_iter = line.split(" ");
+        let name = op_iter.next();
+        let operand = op_iter.next();
+
+        if let Some(operand) = operand {
+            println!("{:?}", rusty_6502_assembler::manager::identify_operand(operand));
+        }
     }
 }
 mod data_types {
@@ -41,6 +48,5 @@ fn main() {
 
     for item in items {
         assembler::assemble_line(&item);
-        
     }
 }
