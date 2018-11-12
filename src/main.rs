@@ -12,17 +12,19 @@ mod assembler {
         let mut op_iter = line.split(" ");
         let name = op_iter.next().unwrap();
         let operand = op_iter.next();
-        let mut opcode:Option<&rusty_6502_assembler::manager::Opcode> = None;
+        let mut opcode: Option<&rusty_6502_assembler::manager::Opcode> = None;
+        let mut op_mode = rusty_6502_assembler::manager::AddressingModes::None;
 
         if let Some(operand) = operand {
-            let op_mode = rusty_6502_assembler::manager::identify_operand(operand);
-            opcode = rusty_6502_assembler::manager::get_hex(name, op_mode);
-            println!("{} has {:?}", name,&op_mode);
+            op_mode = rusty_6502_assembler::manager::identify_operand(operand);
+            println!("{} has {:?}", name, &op_mode);
         } else {
+            op_mode = rusty_6502_assembler::manager::AddressingModes::Implicit;
             println!("No operand provided");
         }
+        let opcode = rusty_6502_assembler::manager::get_hex(name, op_mode);
         if let Some(opcode) = opcode {
-            println!("{:?}", opcode);
+            println!("{} = {:X}{}", opcode.name,opcode.value,match operand{Some(e)=>{e} _=>{""}});
         } else {
             println!("Error");
         }

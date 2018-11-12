@@ -87,7 +87,7 @@ pub mod manager {
         create_opcode!("LDY", AddressingModes::ZeroPage, 0xA4),
         create_opcode!("LSR", AddressingModes::Absolute, 0x4E),
         create_opcode!("LSR", AddressingModes::ZeroPage, 0x46),
-        create_opcode!("LSR", AddressingModes::Accumulator, 0x4A),
+        create_opcode!("LSR", AddressingModes::Implicit, 0x4A),
         create_opcode!("NOP", AddressingModes::Implicit, 0xEA),
         create_opcode!("PHA", AddressingModes::Implicit, 0x48),
         create_opcode!("PLA", AddressingModes::Implicit, 0x68),

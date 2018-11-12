@@ -87,7 +87,7 @@ fn addr_name_to_enum(x: &str) -> String {
             "ZeroPage"
         }
         "A"=> {
-            "Accumulator"
+            "Implicit"
         }
         _=> {
             println!("Tried to create opcode with unrecognized addressing mode {}",x);
