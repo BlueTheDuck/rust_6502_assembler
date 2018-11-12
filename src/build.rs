@@ -1,6 +1,4 @@
-use std::{
-    error::Error
-};
+use std::error::Error;
 
 fn main() -> Result<(), Box<Error>> {
     let opcode_code_generator: String = get_code();
@@ -58,16 +56,42 @@ fn get_code() -> String {
 
         let items: Vec<&str> = line.split(",").collect();
         let code_line = format!(
-            "        create_opcode!(\"{}\", \"{}\", 0x{}),\n",
-            items[0], items[1], items[2]
+            "        create_opcode!(\"{}\", {}, 0x{}),\n",
+            items[0], addr_name_to_enum(items[1]), items[2]
         );
         opcode_code_generator += &code_line.clone();
     }
 
     opcode_code_generator = format!(
         "    static OPCODE_LIST: [Opcode; {}] = [\n{}    ];",
-        opcodes_counter-1, opcode_code_generator
+        opcodes_counter - 1,
+        opcode_code_generator
     );
 
     opcode_code_generator
+}
+
+fn addr_name_to_enum(x: &str) -> String {
+    format!("AddressingModes::{}",
+    match x {
+        "#" => {
+            "Immediate"
+        }
+        "impl" => {
+            "Implicit"
+        }
+        "abs" => {
+            "Absolute"
+        }
+        "zpg" => {
+            "ZeroPage"
+        }
+        "A"=> {
+            "Accumulator"
+        }
+        _=> {
+            println!("Tried to create opcode with unrecognized addressing mode {}",x);
+            "Error"
+        }
+    })
 }
