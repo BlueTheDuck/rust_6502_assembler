@@ -25,9 +25,10 @@ mod assembler {
         impl Bytes {
             pub fn from(n: u32) -> Self {
                 let mut b: Bytes = Bytes::default();
-                for i in 0..4 {
-                    let disp = (i as u32) * 8;
-                    b.bytes[i] = ((n & 0xFFu32 << disp) >> disp) as u8;
+                for i in 0..2 {
+                    let disp: u32 = i * 8;
+                    let i:usize = i as usize;
+                    b.bytes[i] = ((n & (0xFFu32 << disp)) >> disp) as u8;
                 }
                 b
             }
@@ -47,6 +48,7 @@ mod assembler {
             numberic_operand = (numberic_operand & 0xFF00) >> 8;
             numberic_operand += temp << 8;
         }
+        //data_types::Bytes::from<u32>(numberic_operand)
         data_types::Bytes::from(numberic_operand)
     }
     pub fn assemble_line(line: &String) {
@@ -64,7 +66,7 @@ mod assembler {
         } else {
             op_mode = rusty_6502_assembler::manager::AddressingModes::Implicit;
             println!("No operand provided");
-            binary_operand =  data_types::Bytes::default();
+            binary_operand = data_types::Bytes::default();
         }
         opcode = rusty_6502_assembler::manager::get_hex(name, op_mode);
 
@@ -74,13 +76,13 @@ mod assembler {
                 opcode.name,
                 opcode.value,
                 match operand {
-                    Some(_) => {(format!(
+                    Some(_) => (format!(
                         "{:X}{:X}{:X}{:X}",
                         binary_operand.bytes[0],
                         binary_operand.bytes[1],
                         binary_operand.bytes[2],
                         binary_operand.bytes[3]
-                    )).to_string()},
+                    )).to_string(),
                     _ => "".to_string(),
                 }
             );
