@@ -17,20 +17,57 @@ mod assembler {
         impl Default for Bytes {
             fn default() -> Self {
                 Bytes {
-                    quant: 4,
+                    quant: 0,
                     bytes: [0, 0, 0, 0],
                 }
             }
         }
-        impl Bytes {
-            pub fn from(n: u32) -> Self {
+        impl std::convert::From<u8> for Bytes {
+            fn from(n: u8) -> Self {
+                println!("Converting {:#X} to x16",n);
                 let mut b: Bytes = Bytes::default();
                 for i in 0..2 {
-                    let disp: u32 = i * 8;
-                    let i:usize = i as usize;
-                    b.bytes[i] = ((n & (0xFFu32 << disp)) >> disp) as u8;
+                    let disp: u64 = i * 8;
+                    let i: usize = i as usize;
+                    b.bytes[i] = ((n as u64 & (0xFFu64 << disp)) >> disp) as u8;
                 }
+                b.quant = 1;
                 b
+            }
+        }
+        impl std::convert::From<u16> for Bytes {
+            fn from(n: u16) -> Self {
+                println!("Converting {:#X} to x16",n);
+                let mut b: Bytes = Bytes::default();
+                for i in 0..2 {
+                    let disp: u64 = i * 8;
+                    let i: usize = i as usize;
+                    b.bytes[i] = ((n as u64 & (0xFFu64 << disp)) >> disp) as u8;
+                }
+                b.quant = 1;
+                b
+            }
+        }
+        impl std::convert::From<u32> for Bytes {
+            fn from(n: u32) -> Self {
+                println!("Converting {:#X} to x32",n);
+                let mut b: Bytes = Bytes::default();
+                for i in 0..4 {
+                    let disp: u64 = i * 8;
+                    let i: usize = i as usize;
+                    b.bytes[i] = ((n as u64 & (0xFFu64 << disp)) >> disp) as u8;
+                }
+                b.quant = 1;
+                b
+            }
+        }
+        impl std::fmt::UpperHex for Bytes {
+            fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                let mut s: String = String::from("");
+                for i in 0..self.quant {
+                    s = s + &format!("{:X}", self.bytes[i]);
+                }
+                write!(f, "{}", s)
             }
         }
     }
@@ -47,9 +84,12 @@ mod assembler {
             let temp = numberic_operand & 0xFF;
             numberic_operand = (numberic_operand & 0xFF00) >> 8;
             numberic_operand += temp << 8;
+            return data_types::Bytes::from(numberic_operand as u16);
+        } else if clean_operand.len()==2{
+            return data_types::Bytes::from(numberic_operand as u8);
         }
-        //data_types::Bytes::from<u32>(numberic_operand)
-        data_types::Bytes::from(numberic_operand)
+        assert!(false);
+        data_types::Bytes::default()
     }
     pub fn assemble_line(line: &String) {
         let mut op_iter = line.split(" ");
@@ -61,30 +101,21 @@ mod assembler {
 
         if let Some(operand) = operand {
             op_mode = rusty_6502_assembler::manager::identify_operand(operand);
-            println!("{} has {:?}", name, &op_mode);
+            //println!("{} has {:?}", name, &op_mode);
             binary_operand = operand_to_bytes(operand);
         } else {
             op_mode = rusty_6502_assembler::manager::AddressingModes::Implicit;
-            println!("No operand provided");
+            //println!("No operand provided");
             binary_operand = data_types::Bytes::default();
         }
         opcode = rusty_6502_assembler::manager::get_hex(name, op_mode);
 
         if let Some(opcode) = opcode {
             println!(
-                "{} = {:X}{}",
+                "{} = {:X}{:X}",
                 opcode.name,
                 opcode.value,
-                match operand {
-                    Some(_) => (format!(
-                        "{:X}{:X}{:X}{:X}",
-                        binary_operand.bytes[0],
-                        binary_operand.bytes[1],
-                        binary_operand.bytes[2],
-                        binary_operand.bytes[3]
-                    )).to_string(),
-                    _ => "".to_string(),
-                }
+                binary_operand
             );
         } else {
             println!("Error");
@@ -104,6 +135,7 @@ fn main() {
     println!("{:#?}", items);
 
     for item in items {
+        println!("Assembling {}", &item);
         assembler::assemble_line(&item);
     }
 }
