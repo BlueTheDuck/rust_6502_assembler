@@ -81,7 +81,7 @@ fn operand_to_bytes(operand: &str) -> data_types::Bytes {
     }
 
     let clean_operand = regex_extract_numbers.replace_all(operand, "$d");
-    let mut numberic_operand: u32 =
+    let numberic_operand: u32 =
         u32::from_str_radix(&clean_operand, 16).expect("Couldn't parse operand");
     if clean_operand.len() == 4 {
         /*let temp = numberic_operand & 0xFF;
