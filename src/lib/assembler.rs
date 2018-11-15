@@ -16,7 +16,6 @@ pub mod data_types {
     //#region impl From
     impl std::convert::From<u8> for Bytes {
         fn from(n: u8) -> Self {
-            println!("Converting {:#X} to x16", n);
             let mut b: Bytes = Bytes::default();
             /*for i in 0..1 {
                 let disp: u64 = i * 8;
@@ -30,7 +29,6 @@ pub mod data_types {
     }
     impl std::convert::From<u16> for Bytes {
         fn from(n: u16) -> Self {
-            println!("Converting {:#X} to x16", n);
             let mut b: Bytes = Bytes::default();
             for i in 0..2 {
                 let disp: u64 = i * 8;
@@ -43,7 +41,6 @@ pub mod data_types {
     }
     impl std::convert::From<u32> for Bytes {
         fn from(n: u32) -> Self {
-            println!("Converting {:#X} to x32", n);
             let mut b: Bytes = Bytes::default();
             for i in 0..4 {
                 let disp: u32 = i * 8;

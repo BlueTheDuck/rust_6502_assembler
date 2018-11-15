@@ -18,7 +18,6 @@ fn main() {
     println!("{:#?}", items);
 
     for item in items {
-        println!("Assembling {}", &item);
         let assembled:(&Opcode,Bytes) = assembler::assemble_line(&item).unwrap();
         println!("{:X}{:X?}",assembler::data_types::Bytes::from(assembled.0.value),assembled.1);
     }
