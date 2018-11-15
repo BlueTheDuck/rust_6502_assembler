@@ -13,15 +13,17 @@ pub mod data_types {
             }
         }
     }
+    //#region impl From
     impl std::convert::From<u8> for Bytes {
         fn from(n: u8) -> Self {
             println!("Converting {:#X} to x16", n);
             let mut b: Bytes = Bytes::default();
-            for i in 0..2 {
+            /*for i in 0..1 {
                 let disp: u64 = i * 8;
                 let i: usize = i as usize;
                 b.bytes[i] = ((n as u64 & (0xFFu64 << disp)) >> disp) as u8;
-            }
+            }*/
+            b.bytes[0] = n;
             b.quant = 1;
             b
         }
@@ -35,7 +37,7 @@ pub mod data_types {
                 let i: usize = i as usize;
                 b.bytes[i] = ((n as u64 & (0xFFu64 << disp)) >> disp) as u8;
             }
-            b.quant = 1;
+            b.quant = 2;
             b
         }
     }
@@ -44,33 +46,36 @@ pub mod data_types {
             println!("Converting {:#X} to x32", n);
             let mut b: Bytes = Bytes::default();
             for i in 0..4 {
-                let disp: u64 = i * 8;
+                let disp: u32 = i * 8;
                 let i: usize = i as usize;
-                b.bytes[i] = ((n as u64 & (0xFFu64 << disp)) >> disp) as u8;
+                b.bytes[i] = ((n as u32 & (0xFFu32 << disp)) >> disp) as u8;
             }
-            b.quant = 1;
+            b.quant = 4;
             b
         }
     }
+    //#endregion
+    //#region Formatters
     impl std::fmt::UpperHex for Bytes {
         fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
             let mut s: String = String::from("");
             for i in 0..self.quant {
-                s = s + &format!("{:X}", self.bytes[i]);
+                s = s + &format!("{:02X}", self.bytes[i]);
             }
             write!(f, "{}", s)
         }
     }
     impl std::fmt::Debug for Bytes {
         fn fmt(&self,f: &mut std::fmt::Formatter) -> std::fmt::Result {
-            let mut out:String = "".to_string();
-            for i in 0..self.quant {
-                out = out+&format!("{:02}",format!("{:X}",self.bytes[i]));
-            }
-            println!("<{}>", out);
-            write!(f,"{}",out)
+            write!(f,"{:X}",self)
         }
     }
+    impl std::fmt::Display for Bytes {
+        fn fmt(&self,f: &mut std::fmt::Formatter) -> std::fmt::Result {
+            write!(f,"{:X?}",self)
+        }
+    }
+    //#endregion
 }
 fn operand_to_bytes(operand: &str) -> data_types::Bytes {
     lazy_static! {
@@ -82,9 +87,9 @@ fn operand_to_bytes(operand: &str) -> data_types::Bytes {
     let mut numberic_operand: u32 =
         u32::from_str_radix(&clean_operand, 16).expect("Couldn't parse operand");
     if clean_operand.len() == 4 {
-        let temp = numberic_operand & 0xFF;
+        /*let temp = numberic_operand & 0xFF;
         numberic_operand = (numberic_operand & 0xFF00) >> 8;
-        numberic_operand += temp << 8;
+        numberic_operand += temp << 8;*/
         return data_types::Bytes::from(numberic_operand as u16);
     } else if clean_operand.len() == 2 {
         return data_types::Bytes::from(numberic_operand as u8);
