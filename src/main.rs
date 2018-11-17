@@ -1,10 +1,10 @@
 extern crate rusty_6502_assembler;
 
-use std::fs::File;
-use std::io::{BufRead, BufReader};
-use rusty_6502_assembler::lib::{assembler};
 use assembler::data_types::Bytes;
+use rusty_6502_assembler::lib::assembler;
 use rusty_6502_assembler::lib::opcode_manager::Opcode;
+use std::fs::{File, OpenOptions};
+use std::io::{BufRead, BufReader, Write};
 
 fn main() {
     let mut items: Vec<String> = vec![];
@@ -15,11 +15,17 @@ fn main() {
             items.push(line);
         }
     }
+    let mut output_file = match OpenOptions::new().write(true).open("data/out.hex") {
+        Ok(e) => e,
+        _ => File::create("data/out.hex").expect("Couldn't create file"),
+    };
+
     println!("{:#?}", items);
 
     for item in items {
-        let assembled:(&Opcode,Bytes) = assembler::assemble_line(&item).unwrap();
-        println!("{:X}{:X?}",assembler::data_types::Bytes::from(assembled.0.value),assembled.1);
+        let (opcode, operand): (&Opcode, Bytes) = assembler::assemble_line(&item).unwrap();
+        output_file.write(&[opcode.value]).expect("Oh");
+        output_file.write(&operand.bytes[0..operand.quant]);
     }
 }
 /*
