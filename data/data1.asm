@@ -1,4 +1,5 @@
+.org $0800
 LDA #$FE
-TAX
-STA $0001
+TAX   
+    STA $0001
 ADC #$01

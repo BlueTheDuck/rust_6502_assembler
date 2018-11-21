@@ -2,13 +2,13 @@ use lib::opcode_manager::{get_hex, identify_operand, AddressingModes, Opcode};
 
 pub mod data_types {
     pub struct Bytes {
-        pub quant: usize,
+        pub size: usize,
         pub bytes: [u8; 4],
     }
     impl Default for Bytes {
         fn default() -> Self {
             Bytes {
-                quant: 0,
+                size: 0,
                 bytes: [0, 0, 0, 0],
             }
         }
@@ -23,7 +23,7 @@ pub mod data_types {
                 b.bytes[i] = ((n as u64 & (0xFFu64 << disp)) >> disp) as u8;
             }*/
             b.bytes[0] = n;
-            b.quant = 1;
+            b.size = 1;
             b
         }
     }
@@ -35,7 +35,7 @@ pub mod data_types {
                 let i: usize = i as usize;
                 b.bytes[i] = ((n as u64 & (0xFFu64 << disp)) >> disp) as u8;
             }
-            b.quant = 2;
+            b.size = 2;
             b
         }
     }
@@ -47,7 +47,7 @@ pub mod data_types {
                 let i: usize = i as usize;
                 b.bytes[i] = ((n as u32 & (0xFFu32 << disp)) >> disp) as u8;
             }
-            b.quant = 4;
+            b.size = 4;
             b
         }
     }
@@ -56,7 +56,7 @@ pub mod data_types {
     impl std::fmt::UpperHex for Bytes {
         fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
             let mut s: String = String::from("");
-            for i in 0..self.quant {
+            for i in 0..self.size {
                 s = s + &format!("{:02X}", self.bytes[i]);
             }
             write!(f, "{}", s)
@@ -94,7 +94,7 @@ fn operand_to_bytes(operand: &str) -> data_types::Bytes {
     assert!(false);
     data_types::Bytes::default()
 }
-pub fn assemble_line(line: &String) -> Result<(&Opcode,data_types::Bytes),&str> {
+pub fn assemble_line(line: &String) -> Result<(data_types::Bytes,data_types::Bytes),&str> {
     let mut op_iter = line.split(" ");
     let name = op_iter.next().unwrap();
     let operand: Option<&str> = op_iter.next();
@@ -112,8 +112,8 @@ pub fn assemble_line(line: &String) -> Result<(&Opcode,data_types::Bytes),&str> 
     opcode = get_hex(name, op_mode);
 
     if let Some(opcode) = opcode {
-        return Ok((opcode,binary_operand));
+        return Ok((data_types::Bytes::from(opcode.value),binary_operand));
     } else {
-        return Err("Couldn't assemble line");
+        return Err("Couldn't assemble line. Invalid opcode");
     }
 }
