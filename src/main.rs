@@ -1,12 +1,12 @@
 extern crate rusty_6502_assembler;
 
+use rusty_6502_assembler::lib::{assembler,opcode_manager::Opcode,parser::line_regex};
 use assembler::data_types::Bytes;
-use rusty_6502_assembler::lib::{assembler,opcode_manager::Opcode};
 use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, Write};
 
-fn increment_pc(pc:&mut usize) -> Result<usize,&str> {
-    if *pc==0xFFFFusize {
+fn increment_pc(pc: usize) -> Result<usize,&'static str> {
+    if pc==0xFFFFusize {
         return Err("Can't increment PC over 0xFFFF");
     } else {
         return Ok(pc+1);
@@ -41,14 +41,17 @@ fn main() {
             for i in 0..opcode.size {
                 rom[pc] = opcode.bytes[i];
                 println!("{:#X}", &rom[pc]);
-                pc+=1;
+                pc = increment_pc(pc).expect("Couldn't increment PC");
             }
             for i in 0..operand.size {
                 rom[pc] = operand.bytes[i];
                 println!("{:#X}", &rom[pc]);
-                pc+=1;
+                pc = increment_pc(pc).expect("Couldn't increment PC")
             }
-        } else {
+        } else if line_regex::directive.is_match(&item) {
+            println!("Process directive");
+        }
+        else {
             println!("Unexpected {}", item);
         }
     }
