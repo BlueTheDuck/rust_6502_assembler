@@ -7,18 +7,10 @@ use rusty_6502_assembler::lib::{assembler, opcode_manager::Opcode, parser::line_
 use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, Write};
 
-fn increment_pc(pc: usize) -> Result<usize, &'static str> {
-    if pc == 0xFFFFusize {
-        return Err("Can't increment PC over 0xFFFF");
-    } else {
-        return Ok(pc + 1);
-    }
-}
-
 fn main() {
     mod assembler_state {
         pub const ROM_SIZE: usize = 0x10000;
-        pub static mut rom: [u8; ROM_SIZE] = [0; ROM_SIZE];
+        static mut rom: [u8; ROM_SIZE] = [0; ROM_SIZE];
         static mut pc: usize = 0x0000;
         pub fn push_byte(B: u8) -> Result<usize, &'static str> {
             unsafe { rom[pc] = B };
@@ -40,8 +32,15 @@ fn main() {
             if e == 0xFFFFusize {
                 return Err("Can't increment PC over 0xFFFF");
             } else {
-                return Ok(pc + 1);
+                return Ok(e + 1);
             }
+        }
+        pub fn dump_rom() -> [u8;ROM_SIZE] {
+            let dump:[u8;ROM_SIZE];
+            unsafe {
+                dump = rom;
+            }
+            dump
         }
     }
     /* const ROM_SIZE: usize = 0x10000;
@@ -75,7 +74,7 @@ fn main() {
                 pc = increment_pc(pc).expect("Couldn't increment PC"); */
             }
             for i in 0..operand.size {
-                assembler_state::push_byte(opcode.bytes[i]).expect("Couldn't store byte");
+                assembler_state::push_byte(operand.bytes[i]).expect("Couldn't store byte");
                 /* rom[pc] = operand.bytes[i];
                 println!("{:#X}", &rom[pc]);
                 pc = increment_pc(pc).expect("Couldn't increment PC") */
@@ -86,9 +85,10 @@ fn main() {
             println!("Unexpected {}", item);
         }
     }
+    let rom = assembler_state::dump_rom();
     for i in 0..assembler_state::ROM_SIZE {
         output_file
-            .write(&assembler_state::rom[i..i + 1])
+            .write(&rom[i..i + 1])
             .expect("Coudln't save");
     }
 }
