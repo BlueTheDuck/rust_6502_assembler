@@ -1,13 +1,13 @@
 use lib::opcode_manager::{get_hex, identify_operand, AddressingModes, Opcode};
 
 pub const ROM_SIZE: usize = 0x10000;
-pub struct rom {
+pub struct Rom {
     pub rom: [u8; ROM_SIZE],
     pub pc: usize,
 }
-impl rom {
-    pub fn new() -> rom {
-        let new_rom = rom {
+impl Rom {
+    pub fn new() -> Rom {
+        let new_rom = Rom {
             rom: [0; ROM_SIZE],
             pc: 0,
         };
@@ -22,7 +22,7 @@ impl rom {
         self.pc = self.pc & 0xFFFF;
     }
 }
-impl std::ops::Index<usize> for rom {
+impl std::ops::Index<usize> for Rom {
     type Output = u8;
     fn index(&self, addr: usize) -> &Self::Output {
         &self.rom[addr]
