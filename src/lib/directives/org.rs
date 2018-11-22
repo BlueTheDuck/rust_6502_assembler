@@ -1,1 +1,1 @@
-println!("You ran me");
+|state,param|{println!("You ran me with {:#?}",param)};
