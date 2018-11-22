@@ -1,6 +1,17 @@
 use std::error::Error;
 
 fn main() -> Result<(), Box<Error>> {
+    match insert_opcode_list() {
+        Ok(_) => {}
+        Err(e) => {
+            return Err(e);
+        }
+    }
+
+    Ok(())
+}
+//#region Opcode list
+fn insert_opcode_list() -> Result<(), Box<Error>> {
     let opcode_code_generator: String = get_code();
 
     let opmanager_code = include_str!("lib.rs");
@@ -39,10 +50,8 @@ fn main() -> Result<(), Box<Error>> {
     }
 
     std::fs::write("src/lib.rs", opmanager_code_final).expect("Error saving opcode_manager.rs");
-
     Ok(())
 }
-
 fn get_code() -> String {
     let opcode_csv = include_str!("../data/opcodestable.csv").split_whitespace();
     let mut opcode_code_generator: String = String::from("");
@@ -57,7 +66,9 @@ fn get_code() -> String {
         let items: Vec<&str> = line.split(",").collect();
         let code_line = format!(
             "        create_opcode!(\"{}\", {}, 0x{}),\n",
-            items[0], addr_name_to_enum(items[1]), items[2]
+            items[0],
+            addr_name_to_enum(items[1]),
+            items[2]
         );
         opcode_code_generator += &code_line.clone();
     }
@@ -72,26 +83,22 @@ fn get_code() -> String {
 }
 
 fn addr_name_to_enum(x: &str) -> String {
-    format!("AddressingModes::{}",
-    match x {
-        "#" => {
-            "Immediate"
+    format!(
+        "AddressingModes::{}",
+        match x {
+            "#" => "Immediate",
+            "impl" => "Implicit",
+            "abs" => "Absolute",
+            "zpg" => "ZeroPage",
+            "A" => "Implicit",
+            _ => {
+                println!(
+                    "Tried to create opcode with unrecognized addressing mode {}",
+                    x
+                );
+                "Error"
+            }
         }
-        "impl" => {
-            "Implicit"
-        }
-        "abs" => {
-            "Absolute"
-        }
-        "zpg" => {
-            "ZeroPage"
-        }
-        "A"=> {
-            "Implicit"
-        }
-        _=> {
-            println!("Tried to create opcode with unrecognized addressing mode {}",x);
-            "Error"
-        }
-    })
+    )
 }
+//#endregion

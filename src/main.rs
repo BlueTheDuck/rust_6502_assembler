@@ -6,8 +6,11 @@ use assembler::data_types::Bytes;
 use rusty_6502_assembler::lib::{assembler, opcode_manager::Opcode, parser::line_regex};
 use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, Write};
+use std::collections::HashMap;
 
 fn main() {
+    
+
     mod assembler_state {
         pub const ROM_SIZE: usize = 0x10000;
         static mut rom: [u8; ROM_SIZE] = [0; ROM_SIZE];
