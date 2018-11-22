@@ -1,5 +1,34 @@
 use lib::opcode_manager::{get_hex, identify_operand, AddressingModes, Opcode};
 
+pub const ROM_SIZE: usize = 0x10000;
+pub struct rom {
+    pub rom: [u8; ROM_SIZE],
+    pub pc: usize,
+}
+impl rom {
+    pub fn new() -> rom {
+        let new_rom = rom {
+            rom: [0; ROM_SIZE],
+            pc: 0,
+        };
+        new_rom
+    }
+    pub fn push_byte(&mut self, b: u8) {
+        self.rom[self.pc] = b;
+        self.increment_pc();
+    }
+    fn increment_pc(&mut self) {
+        self.pc += 1;
+        self.pc = self.pc & 0xFFFF;
+    }
+}
+impl std::ops::Index<usize> for rom {
+    type Output = u8;
+    fn index(&self, addr: usize) -> &Self::Output {
+        &self.rom[addr]
+    }
+}
+
 pub mod data_types {
     pub struct Bytes {
         pub size: usize,
@@ -63,13 +92,13 @@ pub mod data_types {
         }
     }
     impl std::fmt::Debug for Bytes {
-        fn fmt(&self,f: &mut std::fmt::Formatter) -> std::fmt::Result {
-            write!(f,"{:X}",self)
+        fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+            write!(f, "{:X}", self)
         }
     }
     impl std::fmt::Display for Bytes {
-        fn fmt(&self,f: &mut std::fmt::Formatter) -> std::fmt::Result {
-            write!(f,"{:X?}",self)
+        fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+            write!(f, "{:X?}", self)
         }
     }
     //#endregion
@@ -94,7 +123,7 @@ fn operand_to_bytes(operand: &str) -> data_types::Bytes {
     assert!(false);
     data_types::Bytes::default()
 }
-pub fn assemble_line(line: &String) -> Result<(data_types::Bytes,data_types::Bytes),&str> {
+pub fn assemble_line(line: &String) -> Result<(data_types::Bytes, data_types::Bytes), &str> {
     let mut op_iter = line.split(" ");
     let name = op_iter.next().unwrap();
     let operand: Option<&str> = op_iter.next();
@@ -112,7 +141,7 @@ pub fn assemble_line(line: &String) -> Result<(data_types::Bytes,data_types::Byt
     opcode = get_hex(name, op_mode);
 
     if let Some(opcode) = opcode {
-        return Ok((data_types::Bytes::from(opcode.value),binary_operand));
+        return Ok((data_types::Bytes::from(opcode.value), binary_operand));
     } else {
         return Err("Couldn't assemble line. Invalid opcode");
     }
