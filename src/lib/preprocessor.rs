@@ -21,11 +21,11 @@ impl std::convert::From<String> for ParamTypes {
             4 => {
                 ParamTypes::u_byte(u8::from_str_radix(&f[2..4], 16).expect("Couldn't parse to u8"))
             }
-            5 => ParamTypes::u_short(
+            5 => ParamTypes::addr(
                 u16::from_str_radix(&f[1..5], 16).expect("Couldn't parse to u16"),
             ),
             6 => {
-                ParamTypes::addr(u16::from_str_radix(&f[2..6], 16).expect("Couldn't parse to u16"))
+                ParamTypes::u_short(u16::from_str_radix(&f[2..6], 16).expect("Couldn't parse to u16"))
             }
             _ => ParamTypes::None,
         }
@@ -39,6 +39,7 @@ type directive_name = &'static str;
 
 pub static directives: [(directive_name, directive_fn); 1] =
     [include_directive!(".org", "./directives/org.rs")];
+
 pub fn find_directive(name: &str) -> Option<usize> {
     let mut i:usize = 0;
     for directive in directives.iter() {

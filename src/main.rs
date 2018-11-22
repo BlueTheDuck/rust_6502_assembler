@@ -2,9 +2,9 @@ extern crate rusty_6502_assembler;
 #[macro_use]
 extern crate lazy_static;
 
-use assembler::data_types::Bytes;
 use rusty_6502_assembler::lib as lib_assembler;
 use lib_assembler::{assembler, parser::line_regex};
+use assembler::data_types::Bytes;
 use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, Write};
 

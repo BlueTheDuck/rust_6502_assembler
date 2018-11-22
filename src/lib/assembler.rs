@@ -2,8 +2,8 @@ use lib::opcode_manager::{get_hex, identify_operand, AddressingModes, Opcode};
 
 pub const ROM_SIZE: usize = 0x10000;
 pub struct rom {
-    rom: [u8; ROM_SIZE],
-    pc: usize,
+    pub rom: [u8; ROM_SIZE],
+    pub pc: usize,
 }
 impl rom {
     pub fn new() -> rom {
