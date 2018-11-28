@@ -22,7 +22,7 @@ fn main() {
         _ => File::create("data/out.hex").expect("Couldn't create file"),
     };
 
-    let mut rom_state:assembler::rom = assembler::rom::new();
+    let mut rom_state:assembler::Rom = assembler::Rom::new();
 
 
     for item in items {
@@ -48,7 +48,7 @@ fn main() {
                 Some(e) => e,
                 None => panic!("Directive not found")
             };
-            lib_assembler::preprocessor::directives[dir_index].1(&mut rom_state,operand);
+            lib_assembler::preprocessor::DIRECTIVES[dir_index].1(&mut rom_state,operand);
         } else {
             println!("Unexpected {}", item);
         }
