@@ -1,0 +1,10 @@
+[package]
+name = "crustacean_6502_assembler"
+version = "0.1.0"
+authors = ["PeronTheDuck <pedroignacioperezvargas@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+argument-parser = {path = "../argument-parser"}
+regex = "1.1.2"
+lazy_static = "1.3.0"
