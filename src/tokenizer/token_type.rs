@@ -2,6 +2,8 @@ use super::types;
 use super::RegexMap;
 use crate::regex::Regex;
 use crate::BTreeMap;
+use serde::{Serialize, Serializer};
+use std::rc::Rc;
 
 lazy_static! {
     pub static ref TOKEN_REGEXS: RegexMap = {
@@ -23,14 +25,17 @@ lazy_static! {
 }
 
 #[derive(Debug)]
-pub enum TokenType<'a> {
+pub enum TokenType {
     LABEL(String),
-    OPCODE(types::Opcode<'a>),
-    VALUE(types::Value),
+    OPCODE(types::Opcode),
+    VALUE(Rc<types::Value>),
 }
-impl<'a> TokenType<'a> {
+
+impl TokenType {
     pub fn new<S: Into<String>>(data: S) -> Result<Self, &'static str> {
         let data: String = data.into();
+
+        // Loop thru the 3 types of tokens. Append the name with the regex
         for (token_type, test) in ["opcode", "label", "value"]
             .into_iter()
             .map(|x| (x, &TOKEN_REGEXS[x]))
@@ -44,7 +49,7 @@ impl<'a> TokenType<'a> {
                     }),
                     "label" => TokenType::LABEL(owned.trim_end_matches(":").to_string()),
                     "value" => match types::Value::new(owned) {
-                        Ok(value) => TokenType::VALUE(value),
+                        Ok(value) => TokenType::VALUE(Rc::new(value)),
                         Err(err) => {
                             return Err(err);
                         }
@@ -77,15 +82,15 @@ impl<'a> TokenType<'a> {
     }
     //#endregion
     //#region unwrap_*(self) -> * -- CONSUMES SELF!
-    pub fn unwrap_opcode(self) -> types::Opcode<'a> {
+    pub fn unwrap_opcode(self) -> types::Opcode {
         match self {
             TokenType::OPCODE(opcode) => opcode,
             _ => panic!("The wrapped value is not an opcode"),
         }
     }
-    pub fn unwrap_value(self) -> types::Value {
+    pub fn unwrap_value(self) -> Rc<types::Value> {
         match self {
-            TokenType::VALUE(value) => value,
+            TokenType::VALUE(value) => value.clone(),
             _ => panic!("The wrapped value is not a value"),
         }
     }
@@ -97,21 +102,31 @@ impl<'a> TokenType<'a> {
     }
     //#endregion
     //#region get_*(&self) -> &*
-    pub fn get_value(&self) -> &types::Value {
-        match &self {
-            &TokenType::VALUE(value) => &value,
-            _ => {panic!("The wrapped value is not a value");}
+    pub fn get_value(&self) -> Rc<types::Value> {
+        match self {
+            TokenType::VALUE(value) => value.clone(),
+            _ => {
+                panic!("The wrapped value is not a value");
+            }
         }
     }
     //#endregion
 }
-impl<'a> std::fmt::Display for TokenType<'a> {
+impl<'a> std::fmt::Display for TokenType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
         let token_value = match self {
-            TokenType::LABEL(name) => format!("LABEL_DEF({})", name),
-            TokenType::OPCODE(name) => format!("OPCODE({})", name.name),
-            TokenType::VALUE(name) => format!("VALUE({})", name),
+            TokenType::LABEL(label) => format!("LABEL_DEF({})", label),
+            TokenType::OPCODE(opcode) => format!("OPCODE({})", opcode.name),
+            TokenType::VALUE(value) => format!("VALUE({})", value),
         };
         write!(f, "{}", token_value)
+    }
+}
+impl Serialize for TokenType {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok,S::Error>
+    where
+        S: Serializer,
+    {
+        
     }
 }

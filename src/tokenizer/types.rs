@@ -1,6 +1,7 @@
 use super::RegexMap;
 use crate::regex::Regex;
 use crate::BTreeMap;
+use std::rc::Rc;
 
 lazy_static! {
     pub static ref VALUE_REGEXS: RegexMap = {
@@ -33,9 +34,9 @@ pub enum Value {
     BYTES(Vec<u8>),
 }
 #[derive(Debug)]
-pub struct Opcode<'a> {
+pub struct Opcode {
     pub name: String,
-    pub parameter: Option<&'a Value>,
+    pub parameter: Option<Rc<Value>>,
 }
 
 impl Value {
