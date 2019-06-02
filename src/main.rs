@@ -51,5 +51,5 @@ fn main() {
     /* for (i, tkn) in tokens.iter().enumerate() {
         println!("{}:\t{}", i, tkn);
     } */
-    println!("{}", tree);
+    println!("{}", serde_json::to_string(&tree).expect("Couldn't jsonaize the tree"));
 }

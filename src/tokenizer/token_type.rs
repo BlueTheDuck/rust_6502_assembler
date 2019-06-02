@@ -28,7 +28,7 @@ lazy_static! {
 pub enum TokenType {
     LABEL(String),
     OPCODE(types::Opcode),
-    VALUE(Rc<types::Value>),
+    VALUE(types::parameter),
 }
 
 impl TokenType {

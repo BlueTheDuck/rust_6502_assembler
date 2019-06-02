@@ -1,9 +1,11 @@
 use super::types::*;
 use super::token_type::TokenType;
 use super::types;
+use serde::Serialize;
 
 type TreeError = std::result::Result<(),&'static str>;
 
+#[derive(Serialize)]
 pub struct Tree {
     tokens: Vec<TokenType>,
 }

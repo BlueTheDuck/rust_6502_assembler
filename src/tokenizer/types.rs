@@ -5,6 +5,9 @@ use serde::ser::{Serializer,SerializeStruct};
 use serde::{Serialize,Deserialize};
 use std::rc::Rc;
 
+pub type word = u8;
+pub type parameter = Rc<Value>;
+
 lazy_static! {
     pub static ref VALUE_REGEXS: RegexMap = {
         let mut _regexs = BTreeMap::new();
@@ -26,20 +29,20 @@ lazy_static! {
 
 #[derive(Debug,Serialize,Deserialize)]
 pub enum Address {
-    INT(u8),
-    DOUBLE { lo: u8, hi: u8 },
+    INT(word),
+    DOUBLE { lo: word, hi: word },
     LABEL(String),
 }
 #[derive(Debug,Serialize,Deserialize)]
 pub enum Value {
     ADDRESS(Address),
-    BYTES(Vec<u8>),
+    BYTES(Vec<word>),
     NONE
 }
 #[derive(Debug)]
 pub struct Opcode {
     pub name: String,
-    pub parameter: Rc<Value>,
+    pub parameter: parameter,
 }
 impl Serialize for Opcode {
     fn serialize<S>(&self,serializer: S) -> Result<S::Ok,S::Error>
