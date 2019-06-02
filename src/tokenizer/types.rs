@@ -1,6 +1,8 @@
 use super::RegexMap;
 use crate::regex::Regex;
 use crate::BTreeMap;
+use serde::ser::{Serializer,SerializeStruct};
+use serde::{Serialize,Deserialize};
 use std::rc::Rc;
 
 lazy_static! {
@@ -22,23 +24,32 @@ lazy_static! {
     };
 }
 
-#[derive(Debug)]
+#[derive(Debug,Serialize,Deserialize)]
 pub enum Address {
     INT(u8),
     DOUBLE { lo: u8, hi: u8 },
     LABEL(String),
 }
-#[derive(Debug)]
+#[derive(Debug,Serialize,Deserialize)]
 pub enum Value {
     ADDRESS(Address),
     BYTES(Vec<u8>),
+    NONE
 }
 #[derive(Debug)]
 pub struct Opcode {
     pub name: String,
-    pub parameter: Option<Rc<Value>>,
+    pub parameter: Rc<Value>,
 }
-
+impl Serialize for Opcode {
+    fn serialize<S>(&self,serializer: S) -> Result<S::Ok,S::Error>
+    where S: Serializer {
+        let mut state = serializer.serialize_struct("Opcode", 2)?;
+        state.serialize_field("name",&self.name)?;
+        state.serialize_field("parameter",&*self.parameter)?;
+        state.end()
+    }
+}
 impl Value {
     pub fn new(value: String) -> Result<Self, &'static str> {
         let mut captures: Result<regex::Captures, &'static str> =
@@ -119,6 +130,7 @@ impl std::fmt::Display for Value {
                 format!("{}", arr_fmt)
             }),
             Value::ADDRESS(address) => format!("{}", address),
+            Value::NONE => "".to_string(),
         };
         write!(f, "{}", value)
     }

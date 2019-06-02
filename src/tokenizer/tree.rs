@@ -17,7 +17,7 @@ impl Tree {
         if token.is_value() {
             match self.tokens.pop().unwrap() {
                 TokenType::OPCODE(mut opcode) => {
-                    opcode.parameter = Some(token.get_value());
+                    opcode.parameter = token.get_value().clone();
                     self.insert(TokenType::OPCODE(opcode)).expect("Error appending token on tree");
                     self.tokens.push(token);
                 }

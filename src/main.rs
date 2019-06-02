@@ -11,7 +11,7 @@ use std::collections::BTreeMap;
 use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, BufWriter, Write};
 
-use serde::{Deserialize, Serialize};
+/* use serde::ser::{Serialize,SerializeStruct}; */
 use serde_json::Result;
 
 mod tokenizer;
@@ -52,7 +52,4 @@ fn main() {
         println!("{}:\t{}", i, tkn);
     } */
     println!("{}", tree);
-
-    let jason = serde_json::to_string("Hello");
-    println!("{}", jason.expect("..."));
 }
