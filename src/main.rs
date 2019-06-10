@@ -11,11 +11,12 @@ use std::collections::BTreeMap;
 use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, BufWriter, Write};
 
-/* use serde::ser::{Serialize,SerializeStruct}; */
-use serde_json::Result;
+use serde::ser::{Serialize,SerializeStruct};
 
 mod tokenizer;
 use tokenizer::tree::Tree;
+
+use serde_json::Result;
 
 fn main() {
     let mut file: BufReader<File>;
