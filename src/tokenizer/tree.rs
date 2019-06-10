@@ -1,9 +1,9 @@
-use std::io::{Read,BufRead,BufReader};
+
 use super::token_type::TokenType;
 use super::types;
 use super::types::*;
 use serde::Serialize;
-
+use std::io::{BufRead, BufReader, Read};
 type TreeError = std::result::Result<(), &'static str>;
 
 #[derive(Serialize)]
@@ -32,8 +32,6 @@ impl Tree {
         }
         return Ok(());
     }
-}
-impl Tree {
     pub fn parse<R>(from: std::io::BufReader<R>) -> Tree
     where
         R: std::io::Read,
