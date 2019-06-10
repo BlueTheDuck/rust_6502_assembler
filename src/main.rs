@@ -15,7 +15,6 @@ use std::io::{BufRead, BufReader, BufWriter, Write};
 use serde_json::Result;
 
 mod tokenizer;
-use tokenizer::parse;
 use tokenizer::tree::Tree;
 
 fn main() {
@@ -39,7 +38,7 @@ fn main() {
             .expect("Couldn't open out file"),
     );
     
-    tree = parse(file);
+    tree = Tree::parse(file);
 
     println!(
         "{}",
