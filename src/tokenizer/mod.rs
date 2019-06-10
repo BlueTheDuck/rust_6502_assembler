@@ -7,3 +7,5 @@ type RegexMap = BTreeMap<&'static str, Regex>;
 pub mod token_type;
 pub mod tree;
 mod types;
+mod file_reader;
+pub use file_reader::parse;

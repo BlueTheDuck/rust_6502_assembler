@@ -15,41 +15,34 @@ use std::io::{BufRead, BufReader, BufWriter, Write};
 use serde_json::Result;
 
 mod tokenizer;
-
-use tokenizer::token_type::TokenType;
+use tokenizer::parse;
 use tokenizer::tree::Tree;
 
 fn main() {
-    let file_desc: File;
     let mut file: BufReader<File>;
-    let mut tree: Tree;
-    let file_desc_out: File;
     let mut file_out: BufWriter<File>;
+    let mut tree: Tree;
 
-    file_desc = OpenOptions::new()
-        .read(true)
-        .open("input/basic_test.asm")
-        .expect("Couldn't open input file");
-    file = BufReader::new(file_desc);
 
-    file_desc_out = OpenOptions::new()
-        .write(true)
-        .create(true)
-        .open("output/basic_test.json")
-        .expect("Couldn't open out file");
-    file_out = BufWriter::new(file_desc_out);
+    file = BufReader::new(
+        OpenOptions::new()
+            .read(true)
+            .open("input/basic_test.asm")
+            .expect("Couldn't open input file"),
+    );
 
-    tree = Tree::new();
+    file_out = BufWriter::new(
+        OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open("output/basic_test.json")
+            .expect("Couldn't open out file"),
+    );
+    
+    tree = parse(file);
 
-    for line in file.lines().map(|line|line.expect("Failed to read line")) {
-        for item in line.split_whitespace() {
-            tree.insert(TokenType::new(item).expect(&format!("Invalid item {}", item)))
-                .expect("Error building tree");
-        }
-    }
-
-    /* for (i, tkn) in tokens.iter().enumerate() {
-        println!("{}:\t{}", i, tkn);
-    } */
-    println!("{}", serde_json::to_string(&tree).expect("Couldn't jsonaize the tree"));
+    println!(
+        "{}",
+        serde_json::to_string(&tree).expect("Couldn't jsonaize the tree")
+    );
 }

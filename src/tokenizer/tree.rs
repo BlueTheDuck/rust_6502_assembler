@@ -31,7 +31,7 @@ impl Tree {
         return Ok(());
     }
 }
-impl<'a> std::fmt::Display for Tree {
+impl std::fmt::Display for Tree {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
         let mut buf = "".to_string();
         for (i, tkn) in self.tokens.iter().enumerate() {
