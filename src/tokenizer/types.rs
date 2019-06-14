@@ -1,8 +1,8 @@
 use super::RegexMap;
 use crate::regex::Regex;
 use crate::BTreeMap;
-use serde::ser::{Serializer,SerializeStruct};
-use serde::{Serialize,Deserialize};
+use serde::ser::{SerializeStruct, Serializer};
+use serde::{Deserialize, Serialize};
 use std::rc::Rc;
 
 pub type Word = u8;
@@ -27,32 +27,24 @@ lazy_static! {
     };
 }
 
-#[derive(Debug,Serialize,Deserialize)]
+#[derive(Debug, Deserialize)]
 pub enum Address {
     INT(Word),
     DOUBLE { lo: Word, hi: Word },
     LABEL(String),
 }
-#[derive(Debug,Serialize,Deserialize)]
+#[derive(Debug, Deserialize)]
 pub enum Value {
     ADDRESS(Address),
     BYTES(Vec<Word>),
-    NONE
+    NONE,
 }
 #[derive(Debug)]
 pub struct Opcode {
     pub name: String,
     pub parameter: Parameter,
 }
-impl Serialize for Opcode {
-    fn serialize<S>(&self,serializer: S) -> Result<S::Ok,S::Error>
-    where S: Serializer {
-        let mut state = serializer.serialize_struct("Opcode", 2)?;
-        state.serialize_field("name",&self.name)?;
-        state.serialize_field("parameter",&*self.parameter)?;
-        state.end()
-    }
-}
+
 impl Value {
     pub fn new(value: String) -> Result<Self, &'static str> {
         let mut captures: Result<regex::Captures, &'static str> =

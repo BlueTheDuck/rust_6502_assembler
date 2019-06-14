@@ -2,7 +2,7 @@ use super::types;
 use super::RegexMap;
 use crate::regex::Regex;
 use crate::BTreeMap;
-use serde::ser::{Serialize, Serializer, SerializeTupleVariant};
+use serde::ser::{Serialize, SerializeTupleVariant, Serializer};
 use std::rc::Rc;
 
 lazy_static! {
@@ -112,30 +112,7 @@ impl TokenType {
     }
     //#endregion
 }
-impl Serialize for TokenType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok,S::Error>
-    where
-        S: Serializer,
-    {
-        match self {
-            TokenType::LABEL(name) => {
-                let mut state: S::SerializeTupleVariant = serializer.serialize_tuple_variant("TokenType",0,"LABEL",3)?;
-                state.serialize_field(name)?;
-                state.end()
-            },
-            TokenType::OPCODE(opcode) => {
-                let mut state: S::SerializeTupleVariant = serializer.serialize_tuple_variant("TokenType",1,"OPCODE",3)?;
-                state.serialize_field(opcode)?;
-                state.end()
-            },
-            TokenType::VALUE(val) => {
-                let mut state: S::SerializeTupleVariant = serializer.serialize_tuple_variant("TokenType",2,"VALUE",3)?;
-                state.serialize_field(&**val)?;
-                state.end()
-            },
-        }
-    }
-}
+
 impl<'a> std::fmt::Display for TokenType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
         let token_value = match self {

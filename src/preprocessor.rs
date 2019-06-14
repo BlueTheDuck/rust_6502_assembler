@@ -4,7 +4,7 @@ extern crate regex;
 
 mod opcodes;
 mod settings;
-mod token;
+mod tokenizer;
 
 use settings::Settings;
 use std::fs::{File, OpenOptions};
