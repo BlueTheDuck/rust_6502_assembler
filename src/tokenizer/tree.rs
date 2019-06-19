@@ -8,10 +8,11 @@ type TreeError = std::result::Result<(), &'static str>;
 #[derive(Serialize)]
 pub struct Tree {
     tokens: Vec<TokenType>,
+    counter: usize
 }
 impl Tree {
     pub fn new() -> Self {
-        Tree { tokens: vec![] }
+        Tree { tokens: vec![], counter: 0 }
     }
     pub fn push(&mut self, mut token: TokenType) -> TreeError {
         if token.is_value() {
@@ -53,6 +54,7 @@ impl Tree {
     {
         let mut tree = Tree::new();
         for line in from.lines().map(|l| l.expect("Couldn't read line")) {
+            if line.starts_with(";") {continue;}
             for item in line.split_whitespace() {
                 tree.push(TokenType::new(item).expect(&format!("Invalid item {}", item)))
                     .expect("Error building tree");
@@ -61,6 +63,19 @@ impl Tree {
         tree
     }
 }
+impl std::ops::Deref for Tree {
+    type Target = Vec<TokenType>;
+    fn deref(&self) -> &Self::Target {
+        &self.tokens
+    }
+}
+/* impl std::iter::Iterator for Tree {
+    type Item = TokenType;
+    fn next(&mut self) -> Option<Self::Item> {
+        self.counter += 1;
+        Some(&self.tokens[self.counter])
+    }
+} */
 impl std::fmt::Display for Tree {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
         let mut buf = "".to_string();

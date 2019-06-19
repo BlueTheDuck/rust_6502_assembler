@@ -1,1 +1,0 @@
-{"tokens":[{"OPCODE":[{"name":"LDA","parameter":[34]}]},{"BYTES":[34]},{"OPCODE":[{"name":"LDA","parameter":[255]}]},{"BYTES":[255]},{"OPCODE":[{"name":"STA","parameter":{"ADDRESS":[255]}}]},{"ADDRESS":[255]},{"LABEL":["test"]},{"OPCODE":[{"name":"STA","parameter":{"ADDRESS":[{"LABEL":["test"]}]}}]},{"ADDRESS":[{"LABEL":["test"]}]}]}

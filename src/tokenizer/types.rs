@@ -1,11 +1,13 @@
-use super::RegexMap;
-use crate::regex::Regex;
 use crate::BTreeMap;
+use super::RegexMap;
+use super::Regex;
+
 use serde::ser::{SerializeStruct, Serializer};
 use serde::{Deserialize, Serialize};
 use std::rc::Rc;
 
 pub type Word = u8;
+pub struct ByteCode(pub Vec<Word>);
 pub type Parameter = Rc<Value>;
 
 lazy_static! {
@@ -27,6 +29,7 @@ lazy_static! {
     };
 }
 
+//#region Types
 #[derive(Debug, Deserialize)]
 pub enum Address {
     INT(Word),
@@ -44,12 +47,13 @@ pub struct Opcode {
     pub name: String,
     pub parameter: Parameter,
 }
+//#endregion
 
 impl Value {
-    pub fn new(value: String) -> Result<Self, &'static str> {
+    pub fn new(value: String) -> Result<Self, (&'static str, String)> {
         let mut captures: Result<regex::Captures, &'static str> =
-            Err("NO regex matched the pased value to Value::new(string)");
-        let out: Value;
+            Err("No regex matched the pased value to Value::new(string)");
+        let out: Result<Value, (&'static str, String)>;
         let mut matches_index: usize = std::usize::MAX;
         let tests = ["number", "address", "label"];
         for (i, test) in tests
@@ -65,7 +69,7 @@ impl Value {
         }
 
         if captures.is_err() {
-            return Err(captures.err().unwrap());
+            return Err((captures.err().unwrap(), value));
         }
 
         let captures = captures.unwrap();
@@ -73,32 +77,44 @@ impl Value {
             "address" => match u16::from_str_radix(&captures["ADDR"], 16) {
                 Ok(addr) => {
                     if captures["ADDR"].len() == 4 {
-                        Value::ADDRESS(Address::DOUBLE {
+                        Ok(Value::ADDRESS(Address::DOUBLE {
                             hi: ((addr >> 8) & 0xFF) as u8,
                             lo: (addr & 0xFF) as u8,
-                        })
+                        }))
                     } else if captures["ADDR"].len() == 2 {
-                        Value::ADDRESS(Address::INT((addr & 0xFF) as u8))
+                        Ok(Value::ADDRESS(Address::INT((addr & 0xFF) as u8)))
                     } else {
-                        return Err("Address is invalid in length");
+                        Err(("Address is invalid in length", value))
                     }
                 }
-                Err(_) => {
-                    return Err("The provided address isn't valid hex");
-                }
+                Err(_) => Err(("The provided address isn't valid hex", value)),
             },
             "number" => {
                 let number =
                     u8::from_str_radix(&captures["HEX"], 16).expect("Number provided is invalid");
-                Value::BYTES(vec![number])
+                Ok(Value::BYTES(vec![number]))
             }
-            "label" => Value::ADDRESS(Address::LABEL(captures["LABEL"].to_string())),
+            "label" => Ok(Value::ADDRESS(Address::LABEL(
+                captures["LABEL"].to_string(),
+            ))),
             _ => panic!(""),
         };
-        return Ok(out);
+        return out;
     }
 }
-//#region Traits implementations
+impl std::fmt::UpperHex for ByteCode {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(
+            f,
+            "{:#?}",
+            self.0
+                .iter()
+                .map(|byte| format!("{:02X}", byte))
+                .collect::<String>()
+        )
+    }
+}
+//#region Trait Display implementations
 impl std::fmt::Display for Address {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
         let value = match self {

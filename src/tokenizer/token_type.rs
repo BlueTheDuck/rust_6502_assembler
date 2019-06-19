@@ -1,6 +1,6 @@
 use super::types;
 use super::RegexMap;
-use crate::regex::Regex;
+use super::Regex;
 use crate::BTreeMap;
 use serde::ser::{Serialize, SerializeTupleVariant, Serializer};
 use std::rc::Rc;
@@ -32,9 +32,8 @@ pub enum TokenType {
 }
 
 impl TokenType {
-    pub fn new<S: Into<String>>(data: S) -> Result<Self, &'static str> {
+    pub fn new<S: Into<String>>(data: S) -> Result<Self, String> {
         let data: String = data.into();
-
         // Loop thru the 3 types of tokens. Append the name with the regex
         for (token_type, test) in ["opcode", "label", "value"]
             .into_iter()
@@ -51,7 +50,7 @@ impl TokenType {
                     "value" => match types::Value::new(owned) {
                         Ok(value) => TokenType::VALUE(Rc::new(value)),
                         Err(err) => {
-                            return Err(err);
+                            return Err(format!("Error '{}' with token '{}'",err.0,err.1));
                         }
                     },
                     _ => panic!("How did you get here?"),
@@ -59,7 +58,7 @@ impl TokenType {
                 return Ok(value);
             }
         }
-        return Err("The value provided couldn't be parsed");
+        return Err("The value provided couldn't be parsed (maybe it was a comment?)".to_string());
     }
     //#region is_*(&self) -> bool
     pub fn is_label(&self) -> bool {
@@ -102,6 +101,12 @@ impl TokenType {
     }
     //#endregion
     //#region get_*(&self) -> &*
+    pub fn get_opcode(&self) -> &types::Opcode {
+        match self {
+            TokenType::OPCODE(ref opcode) => opcode,
+            _ => panic!("The wrapped value is not an opcode"),
+        }
+    }
     pub fn get_value(&self) -> Rc<types::Value> {
         match self {
             TokenType::VALUE(value) => value.clone(),

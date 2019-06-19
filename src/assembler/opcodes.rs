@@ -1,19 +1,5 @@
-#[derive(Copy, Clone, Debug)]
-pub enum AddressingModes {
-    A,
-    IMPL,
-    IMM,
-    ZPG,
-    ZPGX,
-    ZPGY,
-    IND,
-    INDX,
-    INDY,
-    ABS,
-    ABSX,
-    ABSY,
-    REL,
-}
+use super::addressing::AddressingModes;
+
 #[derive(Copy, Clone, Debug)]
 pub struct Opcode {
     pub name: &'static str,
@@ -31,7 +17,7 @@ pub fn find<F: Fn(&Opcode) -> bool>(f: F) -> Option<Opcode> {
     return None;
 }
 //#region OPCODES
-static OPCODES: [Opcode; 151] = [
+pub static OPCODES: [Opcode; 151] = [
     Opcode {
         name: "ADC",
         code: 0x61,
