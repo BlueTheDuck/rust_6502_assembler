@@ -1,3 +1,4 @@
+main:
 SEI
 CLD
 LDX #$40
@@ -9,3 +10,4 @@ STX $2000
 STX $2001
 STX $4010
 BIT $2002
+JMP main

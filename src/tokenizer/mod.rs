@@ -1,6 +1,6 @@
+use crate::regex::Regex;
 use lazy_static;
 use std::collections::BTreeMap;
-use crate::regex::Regex;
 
 type RegexMap = BTreeMap<&'static str, Regex>;
 

@@ -1,6 +1,6 @@
-use crate::BTreeMap;
-use super::RegexMap;
 use super::Regex;
+use super::RegexMap;
+use crate::BTreeMap;
 
 use serde::ser::{SerializeStruct, Serializer};
 use serde::{Deserialize, Serialize};
@@ -33,7 +33,7 @@ lazy_static! {
 #[derive(Debug, Deserialize)]
 pub enum Address {
     INT(Word),
-    DOUBLE { lo: Word, hi: Word },
+    DOUBLE { lo: Word, hi: Word, ind: bool },
     LABEL(String),
 }
 #[derive(Debug, Deserialize)]
@@ -80,6 +80,7 @@ impl Value {
                         Ok(Value::ADDRESS(Address::DOUBLE {
                             hi: ((addr >> 8) & 0xFF) as u8,
                             lo: (addr & 0xFF) as u8,
+                            ind: false,
                         }))
                     } else if captures["ADDR"].len() == 2 {
                         Ok(Value::ADDRESS(Address::INT((addr & 0xFF) as u8)))
@@ -120,7 +121,7 @@ impl std::fmt::Display for Address {
         let value = match self {
             Address::LABEL(name) => format!("{}", name),
             Address::INT(value) => format!("${:02X}", value),
-            Address::DOUBLE { hi, lo } => format!("${:02X}{:02X}", hi, lo),
+            Address::DOUBLE { hi, lo, ind } => format!("${:02X}{:02X}", hi, lo),
         };
         write!(f, "ADDRESS({})", value)
     }

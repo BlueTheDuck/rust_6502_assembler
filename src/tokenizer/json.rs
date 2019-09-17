@@ -9,7 +9,7 @@ impl Serialize for Address {
         S: Serializer,
     {
         match self {
-            Address::DOUBLE { lo, hi } => {
+            Address::DOUBLE { lo, hi, ind } => {
                 let mut seq = serializer.serialize_struct("Address", 2)?;
                 seq.serialize_field("lo", lo)?;
                 seq.serialize_field("hi", hi)?;

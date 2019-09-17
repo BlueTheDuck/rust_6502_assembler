@@ -1,6 +1,6 @@
 use super::types;
-use super::RegexMap;
 use super::Regex;
+use super::RegexMap;
 use crate::BTreeMap;
 use serde::ser::{Serialize, SerializeTupleVariant, Serializer};
 use std::rc::Rc;
@@ -35,22 +35,22 @@ impl TokenType {
     pub fn new<S: Into<String>>(data: S) -> Result<Self, String> {
         let data: String = data.into();
         // Loop thru the 3 types of tokens. Append the name with the regex
-        for (token_type, test) in ["opcode", "label", "value"]
+        for (token_type, test) in ["label", "opcode", "value"]
             .into_iter()
             .map(|x| (x, &TOKEN_REGEXS[x]))
         {
             if test.is_match(&data) {
-                let owned = data.to_owned();
+                let data = data.to_owned();
                 let value = match *token_type {
                     "opcode" => TokenType::OPCODE(types::Opcode {
-                        name: owned,
+                        name: data,
                         parameter: Rc::new(types::Value::NONE),
                     }),
-                    "label" => TokenType::LABEL(owned.trim_end_matches(":").to_string()),
-                    "value" => match types::Value::new(owned) {
+                    "label" => TokenType::LABEL(data.trim_end_matches(":").to_string()),
+                    "value" => match types::Value::new(data) {
                         Ok(value) => TokenType::VALUE(Rc::new(value)),
                         Err(err) => {
-                            return Err(format!("Error '{}' with token '{}'",err.0,err.1));
+                            return Err(format!("Error '{}' with token '{}'", err.0, err.1));
                         }
                     },
                     _ => panic!("How did you get here?"),
